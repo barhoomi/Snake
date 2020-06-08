@@ -1,0 +1,41 @@
+body{
+    padding:0;
+    margin:0;
+    background-color: rgb(0, 0, 0);
+}
+
+@font-face{
+    font-family: pixel;
+    src: url(./joystix\ monospace.ttf);
+}
+
+
+.score{
+    margin-top: 2vw;
+    margin-left: 2.5vw;
+    display: flex;
+    font-size: 25px;
+    font-family: pixel;
+    color: white;
+    position: absolute;
+}
+
+.high-score{
+    margin-top: 2vw;
+    margin-left: 17vw;
+    display: flex;
+    font-size: 25px;
+    font-family: pixel;
+    font-weight: lighter;
+    color: white;
+    position: absolute;
+}
+
+.screen{
+    display: flex;
+    justify-content: space-around;
+}
+.canvas{
+    margin-top: 1.5vw;
+    border: solid rgb(119, 119, 119) 1px;
+}
