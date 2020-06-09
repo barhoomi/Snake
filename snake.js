@@ -4,6 +4,7 @@ canvas.height = Math.floor(window.innerHeight/25) * 25 - 25;
 var ctx = canvas.getContext('2d');
 var score = 0;
 var highScore = 0;
+var timeStamp = 0;
 
 
 window.addEventListener('resize',function(){
@@ -14,6 +15,7 @@ window.addEventListener('resize',function(){
 
 class Snake {
     constructor(){
+        this.isInCanvas = true;
         this.body = [];
         this.body[0] = {
             x: (Math.round(canvas.width/2)/25) * 25,
@@ -31,12 +33,48 @@ class Snake {
         this.ydir = 0;
     }
     eat(){
-        food = new Food();
-        score += 1;
-        this.body[2+score]={
-            x: this.body[1+score].x,
-            y: this.body[1+score].y,
+        if((this.body[0].x==food.location.x)&&((this.body[0].y==food.location.y))){
+            food = new Food();
+            score += 1;
+            this.body[2+score]={
+                x: this.body[1+score].x,
+                y: this.body[1+score].y,
+            }
         }
+        else{
+            return;
+        }
+    }
+
+    move(){
+        for (var i = this.body.length - 1; i > 0; i--) {
+            this.body[i].x = this.body[(i-1)].x;
+            this.body[i].y = this.body[(i-1)].y;
+        }
+        this.body[0].x += this.xdir*25;
+        this.body[0].y += this.ydir*25;
+    }
+
+    detectCollision(){
+        if(score>0){
+            for(let i = 1; i<this.body.length;i++){
+                if((this.body[0].x == this.body[i].x)&&(this.body[0].y == this.body[i].y)){
+                    // I could use resetGame() here, but it wouldn't exit the while loop if I do that.
+                    this.body[0].x = canvas.width+1000;
+                }
+            }
+        }
+    }
+
+    draw(){
+        for(let x in this.body){
+            ctx.fillStyle = "white";
+            ctx.fillRect(this.body[x].x,this.body[x].y,23,23);
+        }
+    }
+
+    checkForSnake(){
+        this.isInCanvas = !!(this.body[0].x<canvas.width)&&(this.body[0].y<canvas.height)&&(this.body[0].y>=0)&&(this.body[0].x>=0)
     }
 }
 
@@ -47,6 +85,12 @@ class Food {
             y: (Math.floor(Math.random() * Math.floor(canvas.height/ 25)) * 25),
         };
     }
+
+    draw(){
+        ctx.fillStyle = "red";
+        ctx.fillRect(this.location.x,this.location.y,23,23);
+    }
+    
 }
 
 function sleep(ms) {
@@ -55,48 +99,34 @@ function sleep(ms) {
 
 snake = new Snake();
 food = new Food();
-var timeStamp = 0;
+
+
+function updateDrawing(){
+    drawCanvas();
+    snake.draw();
+    food.draw();
+    updateScore();
+}
+
+function drawCanvas(){
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+function updateScore(){
+    document.querySelector(".score").innerText = `Score: ${score}`
+    if(score > highScore){
+        highScore = score;
+    }
+    document.querySelector(".high-score").innerText = `Highscore: ${highScore}`
+}
+
 
 var handleInput = async function (event){
     keyValue = event.key;
     if(event.timeStamp-timeStamp>50){
         switch(keyValue){
             case "w":
-                if(snake.ydir != 1){
-                    snake.xdir = 0;
-                    snake.ydir = -1;
-                    break;
-                }
-                else{
-                    return;
-                }
-            case "a":
-                if(snake.xdir != 1){
-                    snake.xdir = -1;
-                    snake.ydir = 0;
-                    break;
-                }
-                else{
-                    return;
-                }
-            case "s":
-                if(snake.ydir != -1){
-                    snake.xdir = 0;
-                    snake.ydir = 1;
-                    break;
-                }
-                else{
-                    return;
-                }
-            case "d":
-                if(snake.xdir != -1){
-                    snake.xdir = 1;
-                    snake.ydir = 0;
-                    break;
-                }
-                else{
-                    return;
-                }
             case "ArrowUp":
                 if(snake.ydir != 1){
                     snake.xdir = 0;
@@ -106,6 +136,7 @@ var handleInput = async function (event){
                 else{
                     return;
                 }
+            case "a":
             case "ArrowLeft":
                 if(snake.xdir != 1){
                     snake.xdir = -1;
@@ -115,6 +146,7 @@ var handleInput = async function (event){
                 else{
                     return;
                 }
+            case "s":
             case "ArrowDown":
                 if(snake.ydir != -1){
                     snake.xdir = 0;
@@ -124,6 +156,7 @@ var handleInput = async function (event){
                 else{
                     return;
                 }
+            case "d":
             case "ArrowRight":
                 if(snake.xdir != -1){
                     snake.xdir = 1;
@@ -139,86 +172,31 @@ var handleInput = async function (event){
 };  
 
 window.addEventListener('keydown', handleInput, false);
-startGame();
-
-
 
 async function startGame(){
-    while((snake.body[0].x<canvas.width)&&(snake.body[0].y<canvas.height)&&(snake.body[0].y>=0)&&(snake.body[0].x>=0)){      
+    while(snake.isInCanvas){      
         await sleep(65);
-        moveSnake();
+        snake.move();
         updateDrawing();
-        if((snake.body[0].x==food.location.x)&&((snake.body[0].y==food.location.y))){
-            snake.eat();
-        }
-        detectCollision();
+        snake.eat();
+        updateDrawing();
+        snake.detectCollision();
+        updateDrawing();
+        snake.checkForSnake();
     }
     resetGame();
-}
-
-function moveSnake(){
-    for (var i = snake.body.length - 1; i > 0; i--) {
-        snake.body[i].x = snake.body[(i-1)].x;
-        snake.body[i].y = snake.body[(i-1)].y;
-    }
-    snake.body[0].x += snake.xdir*25;
-    snake.body[0].y += snake.ydir*25;
-}
-
-function detectCollision(){
-    if(score>0){
-        for(let i = 1; i<snake.body.length;i++){
-            if((snake.body[0].x == snake.body[i].x)&&(snake.body[0].y == snake.body[i].y)){
-                // I could use resetGame() here, but it wouldn't exit the while loop if I do that.
-                snake.body[0].x = canvas.width+1000;
-            }
-        }
-    }
-}
-
-function updateDrawing(){
-    drawCanvas();
-    drawSnake();
-    drawFood();
-    updateScore();
-}
-
-function drawCanvas(){
-    ctx.fillStyle = "black";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-}
-
-function drawSnake(){
-    for(x in snake.body){
-        ctx.fillStyle = "white";
-        ctx.fillRect(snake.body[x].x,snake.body[x].y,23,23);
-    }
-}
-
-function drawFood(){
-    ctx.fillStyle = "red";
-    ctx.fillRect(food.location.x,food.location.y,23,23);
-}
-
-function updateScore(){
-    document.querySelector(".score").innerText = `Score: ${score}`
-    if(score > highScore){
-        highScore = score;
-    }
-    document.querySelector(".high-score").innerText = `Highscore: ${highScore}`
-}
+};
 
 function resetGame(){
     if(score > highScore){
         highScore = score;
     }
     alert(`You died. Score: ${score}`);
+    score = 0;
     snake = new Snake();
     food = new Food();
-    score = 0;
     updateDrawing();
     startGame();
 }
 
-
-
+startGame();
