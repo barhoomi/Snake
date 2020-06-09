@@ -14,7 +14,7 @@ body{
     margin-top: 2vw;
     margin-left: 2.5vw;
     display: flex;
-    font-size: 25px;
+    font-size: 1.8vw;
     font-family: pixel;
     color: white;
     position: absolute;
@@ -24,7 +24,7 @@ body{
     margin-top: 2vw;
     margin-left: 17vw;
     display: flex;
-    font-size: 25px;
+    font-size: 1.8vw;
     font-family: pixel;
     font-weight: lighter;
     color: white;
@@ -37,5 +37,5 @@ body{
 }
 .canvas{
     margin-top: 1.5vw;
-    border: solid rgb(119, 119, 119) 1px;
+    border: solid rgb(255, 255, 255) 3px;
 }
