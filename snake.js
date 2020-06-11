@@ -22,12 +22,12 @@ class Snake {
             y: (Math.round(canvas.height/2)/25) * 25,
         };
         this.body[1] = {
-            x: (Math.round(canvas.width/2)/25) * 25 + 25,
-            y: (Math.round(canvas.height/2)/25) * 25,
+            x: this.body[0].x,
+            y: this.body[0].y,
         };
         this.body[2] = {
-            x: (Math.round(canvas.width/2)/25) * 25 + 50,
-            y: (Math.round(canvas.height/2)/25) * 25,
+            x: this.body[0].x,
+            y: this.body[0].y,
         };
         this.xdir = 0;
         this.ydir = 0;
@@ -67,13 +67,13 @@ class Snake {
     }
 
     draw(){
-        for(let x in this.body){
-            ctx.fillStyle = "white";
+        ctx.fillStyle="white";
+        for(let x = 0;x<this.body.length;x++){
             ctx.fillRect(this.body[x].x,this.body[x].y,23,23);
         }
     }
 
-    checkForSnake(){
+    checkLocation(){
         this.isInCanvas = !!(this.body[0].x<canvas.width)&&(this.body[0].y<canvas.height)&&(this.body[0].y>=0)&&(this.body[0].x>=0)
     }
 }
@@ -84,6 +84,12 @@ class Food {
             x: (Math.floor(Math.random() * Math.floor(canvas.width/ 25)) * 25),
             y: (Math.floor(Math.random() * Math.floor(canvas.height/ 25)) * 25),
         };
+        for(let s=1;s<snake.body.length;s++){
+            if(((this.location.x)==snake.body[s].x)&&((this.location.y)==snake.body[s].y)){
+                food = new Food();
+                break;
+            }
+        }
     }
 
     draw(){
@@ -171,10 +177,32 @@ var handleInput = async function (event){
     timeStamp = event.timeStamp;
 };  
 
+function showDeathScreen(){
+    let deathscreen = document.querySelector('.death-screen');
+    let deathbox = document.querySelector('.box');
+    deathscreen.style.display = "flex";
+    deathbox.style.display = "flex";
+    document.querySelector(".score").innerText = '';
+    document.querySelector(".high-score").innerText = '';
+}
+
+function hideDeathScreen(){
+    let deathscreen = document.querySelector('.death-screen');
+    let deathbox = document.querySelector('.box');
+    deathscreen.style.display = "none";
+    deathbox.style.display = "none";
+    document.querySelector(".score").innerText = score;
+    document.querySelector(".high-score").innerText = highScore;
+}
+
 window.addEventListener('keydown', handleInput, false);
 
+
+var finishedRunning = true;
+
 async function startGame(){
-    while(snake.isInCanvas){      
+    while(snake.isInCanvas){   
+        finishedRunning = false;   
         await sleep(65);
         snake.move();
         updateDrawing();
@@ -182,21 +210,29 @@ async function startGame(){
         updateDrawing();
         snake.detectCollision();
         updateDrawing();
-        snake.checkForSnake();
+        snake.checkLocation();
+        finishedRunning = true;
     }
-    resetGame();
+    showDeathScreen();
+    document.querySelector('.respawn-button').addEventListener('click', function(){
+        resetGame();
+    });
 };
 
 function resetGame(){
+    hideDeathScreen();
     if(score > highScore){
         highScore = score;
     }
-    alert(`You died. Score: ${score}`);
+    // alert(`You died. Score: ${score}`);
     score = 0;
     snake = new Snake();
     food = new Food();
     updateDrawing();
-    startGame();
+    if(finishedRunning == true){
+        startGame();
+    }
 }
+
 
 startGame();

@@ -39,3 +39,44 @@ body{
     margin-top: 1.5vw;
     border: solid rgb(255, 255, 255) 3px;
 }
+
+.box{
+    display:none;
+    position: absolute;
+    flex-direction: column;
+    justify-content: space-around;
+    align-content: center;
+    left:35vw;
+    top:20vh;
+    background-color:rgba(0, 0, 0, 0.15);
+    width:30vw;
+    height:50vh;
+    z-index:1;
+}
+.box span{
+    color: white;
+    font-size:3vw;
+    font-family: pixel;
+    text-align: center;
+    margin-top:8vw;
+}
+.respawn-button{
+    color: white;
+    font-size:2vw;
+    font-family: pixel;
+    text-align: center;
+    background-color: rgb(61, 61, 61);
+    margin-left: 7vw;
+    margin-right: 7vw;
+    margin-bottom: 10vw;
+    border: rgb(100, 100, 100) solid 2px;
+}
+
+.death-screen{
+    display:none;
+    position: absolute;
+    width:100vw;
+    height:100vh;
+    background-color: rgba(0, 0, 0, 0.733);
+    z-index:0;
+}
