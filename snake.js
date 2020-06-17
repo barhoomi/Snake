@@ -217,6 +217,12 @@ async function startGame(){
     document.querySelector('.respawn-button').addEventListener('click', function(){
         resetGame();
     });
+    document.addEventListener('keydown', function(event){
+        let spaceKeyCode = 32;
+        if(event.keyCode == spaceKeyCode){
+            resetGame();
+        }
+    });
 };
 
 function resetGame(){
